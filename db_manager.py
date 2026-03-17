@@ -49,7 +49,6 @@ class DBManager:
         finally:
             conn.close() #closes the PostgreSQL connection after schema extraction
         sid = session_id or str(uuid.uuid4())
-        schema = self._extract_postgres_schema(conn)
         self._sessions[sid] = {
             "db_type": "postgresql",
             "dsn": dsn,

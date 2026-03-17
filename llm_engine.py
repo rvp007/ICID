@@ -32,6 +32,7 @@ The JSON must have exactly this structure:
     "y_keys": ["column_name_for_y_axis"],
     "colors": ["#6366f1"],
     "description": "one line description of what this chart shows"
+    }}
 }}
 
 RULES:
@@ -91,7 +92,6 @@ def query_to_sql_and_chart(
     raw = response.text.strip()
 
     # Save model response to history
-    session_manager.add_user_message(session_id, question)
     session_manager.add_model_message(session_id, raw)
 
     return _parse_llm_response(raw)

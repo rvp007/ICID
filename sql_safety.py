@@ -15,7 +15,6 @@ BLOCKED_KEYWORDS = [
     r"\bPRAGMA\b",
     r"\bEXEC\b",
     r"\bEXECUTE\b",
-    r"\bUNION\b",
 ]
 
 _BLOCKED_RE = re.compile("|".join(BLOCKED_KEYWORDS), re.IGNORECASE)

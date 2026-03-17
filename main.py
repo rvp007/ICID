@@ -132,7 +132,7 @@ def query(req: QueryRequest):
             sql="",
             data=[],
             chart_config={},
-            clarification_needed=False,
+            clarification_needed=True,
             clarification_message=(
                 llm_result.get("clarification_message") or
                 "This question cannot be answered with the available data."

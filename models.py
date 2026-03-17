@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Any
 
 
@@ -26,18 +26,20 @@ class QueryResponse(BaseModel):
 
 class SchemaResponse(BaseModel):
     session_id: str
-    schema: dict  # { table_name: [{ name, type }] }
-
+    db_schema: dict = Field(..., alias="schema")
+    model_config = {"populate_by_name": True}  
 
 class UploadResponse(BaseModel):
     session_id: str
     filename: str
-    schema: dict
+    db_schema: dict = Field(..., alias="schema")
+    model_config = {"populate_by_name": True}
     row_count: int
 
 
 class SessionInfo(BaseModel):
     session_id: str
     db_type: str
-    schema: dict
+    db_schema: dict = Field(..., alias="schema")
+    model_config = {"populate_by_name": True}
     history_length: int
