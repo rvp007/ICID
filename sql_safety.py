@@ -15,9 +15,11 @@ BLOCKED_KEYWORDS = [
     r"\bPRAGMA\b",
     r"\bEXEC\b",
     r"\bEXECUTE\b",
+    r"\bUNION\b",
 ]
 
 _BLOCKED_RE = re.compile("|".join(BLOCKED_KEYWORDS), re.IGNORECASE)
+__COMMENT_RE = re.compile(r"--.*?$|/\*.*?\*/", re.DOTALL | re.MULTILINE) #regex pattern to strip SQL comments from query before safet-check
 
 
 class UnsafeSQLError(Exception):
@@ -25,13 +27,10 @@ class UnsafeSQLError(Exception):
 
 
 def validate_sql(sql: str) -> str:
-    """
-    Raises UnsafeSQLError if the SQL contains any destructive operation.
-    Returns the cleaned SQL string on success.
-    """
+    #Raises UnsafeSQLError if the SQL contains any destructive operation. Returns the cleaned SQL string on success.
     sql = sql.strip().rstrip(";")
-
-    match = _BLOCKED_RE.search(sql)
+    clean = __COMMENT_RE.sub("", sql).strip()
+    match = _BLOCKED_RE.search(clean)
     if match:
         raise UnsafeSQLError(
             f"Query contains a blocked operation: '{match.group()}'. "
@@ -39,8 +38,7 @@ def validate_sql(sql: str) -> str:
         )
 
     # Must start with SELECT (after stripping comments/whitespace)
-    first_token = re.sub(r"--.*?\n|/\*.*?\*/", "", sql, flags=re.DOTALL).strip()
-    if not first_token.upper().startswith("SELECT") and not first_token.upper().startswith("WITH"):
+    if not clean.upper().startswith("SELECT") and not clean.upper().startswith("WITH"):
         raise UnsafeSQLError(
             "Only SELECT (and WITH ... SELECT) queries are allowed."
         )
