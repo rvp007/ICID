@@ -40,10 +40,14 @@ class DBManager:
         return sid
 
     def connect_postgresql(self, dsn: str, session_id: Optional[str] = None) -> str:
-        """Register a PostgreSQL DSN and return a session_id."""
+        #Register a PostgreSQL DSN and return a session_id.
         if not POSTGRES_AVAILABLE:
             raise RuntimeError("psycopg2 not installed. Run: pip install psycopg2-binary")
         conn = psycopg2.connect(dsn)
+        try:
+            schema = self._extract_postgres_schema(conn)
+        finally:
+            conn.close() #closes the PostgreSQL connection after schema extraction
         sid = session_id or str(uuid.uuid4())
         schema = self._extract_postgres_schema(conn)
         self._sessions[sid] = {
@@ -55,11 +59,7 @@ class DBManager:
         return sid
 
     def ingest_csv(self, file_path: str, session_id: Optional[str] = None) -> tuple[str, int]:
-        """
-        Load a CSV into an in-memory SQLite DB.
-        Returns (session_id, row_count).
-        """
-        # Try common encodings in order — handles Excel/Windows CSVs
+        #Load a CSV into an in-memory SQLite DB. Returns (session_id, row_count).Try common encodings in order — handles Excel/Windows CSVs
         for encoding in ("utf-8", "utf-8-sig", "windows-1252", "latin-1"):
             try:
                 df = pd.read_csv(file_path, encoding=encoding)
@@ -107,9 +107,13 @@ class DBManager:
 
     def close_session(self, session_id: str):
         if session_id in self._sessions:
-            conn = self._sessions[session_id].get("in_memory_conn")
+            session = self._sessions[session_id]
+            conn = session.get("in_memory_conn")
             if conn:
                 conn.close()
+                source = session.get("source_file")
+                if source and os.path.exists(source):
+                    os.unlink(source)
             del self._sessions[session_id]
 
     # Schema Extraction
@@ -160,7 +164,9 @@ class DBManager:
             cursor = conn.cursor()
             cursor.execute(sql)
             rows = cursor.fetchall()
-            if isinstance(rows[0], sqlite3.Row) if rows else False:
+            if not rows:
+                return []
+            if isinstance(rows[0], sqlite3.Row):
                 return [dict(row) for row in rows]
             # For in-memory CSV connections, get column names from description
             cols = [d[0] for d in cursor.description]
