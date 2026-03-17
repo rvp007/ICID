@@ -1,20 +1,3 @@
-"""
-NL2Dashboard — Comprehensive Backend Test Suite
-================================================
-Tests every endpoint, edge case, and failure mode.
-
-Usage:
-    1. Make sure your FastAPI server is running:
-       python -m uvicorn main:app --reload --port 8000
-
-    2. Put your SQLite DB path and CSV path below in CONFIG.
-
-    3. Run:
-       python test_backend.py
-
-    Results are printed with PASS / FAIL / WARN labels.
-"""
-
 import requests
 import json
 import os
@@ -327,7 +310,7 @@ if sqlite_session_id:
         # Should either get clarification_needed or 400, never execute
         safe = (
             r.status_code in (200, 400) and
-            not (r.status_code == 200 and r.json().get("error", "").startswith("SQL execution"))
+            not (r.status_code == 200 and (r.json().get("error") or "").startswith("SQL execution"))
         )
         check(f"  Injection blocked: '{prompt[:40]}'", safe,
               f"status={r.status_code} error={r.json().get('error','') if r.status_code==200 else ''}")
