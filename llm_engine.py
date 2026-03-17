@@ -6,7 +6,6 @@ from session_manager import session_manager
 
 # Configure Gemini
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-_MODEL = genai.GenerativeModel("gemini-2.5-flash")
 
 # System prompt template
 SYSTEM_PROMPT = """You are a business data analyst assistant. Your job is to convert natural language questions into SQL queries and produce visual representation configurations.
@@ -31,7 +30,6 @@ The JSON must have exactly this structure:
     "y_keys": ["column_name_for_y_axis"],
     "colors": ["#6366f1"],
     "description": "one line description of what this chart shows"
-  }}
 }}
 
 RULES:
@@ -59,9 +57,7 @@ Database Schema:
 """
 
 
-# ------------------------------------------------------------------
 # Public interface
-# ------------------------------------------------------------------
 
 def query_to_sql_and_chart(
     session_id: str,
@@ -76,6 +72,9 @@ def query_to_sql_and_chart(
     schema_text = _format_schema(schema)
     system = SYSTEM_PROMPT.format(schema=schema_text)
 
+    model = genai.GenerativeModel("gemini-2.5-flash") #passes system instructions into model
+
+
     # Build history for multi-turn context
     history = session_manager.get_history(session_id)
 
@@ -83,15 +82,14 @@ def query_to_sql_and_chart(
     session_manager.add_user_message(session_id, question)
 
     # Build the chat with history
-    chat = _MODEL.start_chat(history=history)
+    chat = model.start_chat(history=history)
 
     # First message carries the system context + question
-    full_prompt = f"{system}\n\nUser question: {question}"
-    response = chat.send_message(full_prompt)
-
+    response = chat.send_message(question)
     raw = response.text.strip()
 
     # Save model response to history
+    session_manager.add_user_message(session_id, question)
     session_manager.add_model_message(session_id, raw)
 
     return _parse_llm_response(raw)
