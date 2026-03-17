@@ -8,7 +8,9 @@ from session_manager import session_manager
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 
 # System prompt template
-SYSTEM_PROMPT = """You are a business data analyst assistant. Your job is to convert natural language questions into SQL queries and produce visual representation configurations.
+SYSTEM_PROMPT = """IMPORTANT: You must respond with ONLY a valid JSON object. No markdown. No explanation. No code blocks. No natural language. The first character of your response must be {{ and the last must be }}.
+
+You are a business data analyst assistant. Your job is to convert natural language questions into SQL queries and produce visual representation configurations.
 
 You will be given:
 1. A database schema (table names, columns, data types)
@@ -72,7 +74,7 @@ def query_to_sql_and_chart(
     schema_text = _format_schema(schema)
     system = SYSTEM_PROMPT.format(schema=schema_text)
 
-    model = genai.GenerativeModel("gemini-2.5-flash") #passes system instructions into model
+    model = genai.GenerativeModel("gemini-3.1-flash-lite-preview", system_instruction=system) #passes system instructions into model
 
 
     # Build history for multi-turn context
@@ -85,7 +87,7 @@ def query_to_sql_and_chart(
     chat = model.start_chat(history=history)
 
     # First message carries the system context + question
-    response = chat.send_message(question)
+    response = chat.send_message(f"User question:{question} \n\nRemember: respond with ONLY a valid JSON object, no markdown, no explanation.")
     raw = response.text.strip()
 
     # Save model response to history
@@ -110,7 +112,7 @@ def _parse_llm_response(raw: str) -> dict:
     Handles accidental markdown code fences.
     """
     # Strip markdown fences if present
-    clean = re.sub(r"```(?:json)?", "", raw, flags=re.IGNORECASE).strip().rstrip("```").strip()
+    clean = re.sub(r"```(?:json)?", "", raw, flags=re.IGNORECASE).strip().rstrip("`").strip()
 
     try:
         data = json.loads(clean)
