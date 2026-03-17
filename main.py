@@ -41,13 +41,14 @@ def health():
 # Connect to an existing DB (SQLite file path or PostgreSQL DSN)
 @app.post("/api/connect", response_model=SchemaResponse)
 def connect_db(req: ConnectDBRequest):
+    if req.db_type not in ("sqlite", "postgresql"):
+        raise HTTPException(status_code=400, detail=f"Unsupported db_type: {req.db_type}")
+
     try:
         if req.db_type == "sqlite":
             sid = db_manager.connect_sqlite(req.connection_string, req.session_id)
         elif req.db_type == "postgresql":
             sid = db_manager.connect_postgresql(req.connection_string, req.session_id)
-        else:
-            raise HTTPException(status_code=400, detail=f"Unsupported db_type: {req.db_type}")
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
