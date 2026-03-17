@@ -34,8 +34,10 @@ class SessionManager:
     def _trim(self, session_id: str):
         history = self._history[session_id]
         if len(history) > self.MAX_HISTORY:
-            # Always keep pairs (user + model), so trim from front by 2
-            self._history[session_id] = history[-self.MAX_HISTORY:]
+            trimmed = history[-self.MAX_HISTORY:]
+            while trimmed and trimmed[0]["role"] != "user": #AI requires first turn to be from user
+                trimmed = trimmed[1:]
+            self._history[session_id] = trimmed
 
 
 # Singleton
