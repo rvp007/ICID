@@ -14,10 +14,14 @@ from models import (
     UploadResponse,
     SessionInfo,
 )
-from db_manager import db_manager
-from session_manager import session_manager
-from llm_engine import query_to_sql_and_chart
-from sql_safety import validate_sql, UnsafeSQLError
+from engine import (
+    db_manager, 
+    session_manager, 
+    query_to_sql_and_chart, 
+    validate_sql, 
+    UnsafeSQLError
+)
+
 
 app = FastAPI(title="NL2Dashboard API", version="1.0.0")
 
