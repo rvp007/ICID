@@ -4,9 +4,7 @@ from typing import Optional
 
 class SessionManager:
     """
-    Maintains per-session chat history so the LLM can handle
-    follow-up questions that refine or filter previous results.
-
+    Maintains per-session chat history so the LLM can handle follow-up questions that refine or filter previous results.
     Each history entry is a dict:
         { role: "user" | "model", content: str }
     """

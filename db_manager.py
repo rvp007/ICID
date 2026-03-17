@@ -23,10 +23,8 @@ class DBManager:
         # session_id -> { db_type, conn_or_path, schema, in_memory_conn }
         self._sessions: dict[str, dict] = {}
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
 
+    # Public API
     def connect_sqlite(self, path: str, session_id: Optional[str] = None) -> str:
         """Register a SQLite file and return a session_id."""
         if not os.path.exists(path):
@@ -114,10 +112,7 @@ class DBManager:
                 conn.close()
             del self._sessions[session_id]
 
-    # ------------------------------------------------------------------
     # Schema Extraction
-    # ------------------------------------------------------------------
-
     def _extract_sqlite_schema(self, path: str) -> dict:
         conn = sqlite3.connect(path)
         schema = self._extract_sqlite_schema_from_conn(conn)
@@ -153,10 +148,7 @@ class DBManager:
             schema[table] = [dict(row) for row in cursor.fetchall()]
         return schema
 
-    # ------------------------------------------------------------------
     # Query Executors
-    # ------------------------------------------------------------------
-
     def _exec_sqlite(self, session: dict, sql: str) -> list[dict]:
         if session["db_type"] == "csv":
             conn = session["in_memory_conn"]
@@ -186,10 +178,7 @@ class DBManager:
         finally:
             conn.close()
 
-    # ------------------------------------------------------------------
     # Helpers
-    # ------------------------------------------------------------------
-
     def _require_session(self, session_id: str):
         if session_id not in self._sessions:
             raise KeyError(f"Session '{session_id}' not found. Connect a database first.")

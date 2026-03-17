@@ -1,6 +1,6 @@
 import re
 
-# Destructive or dangerous SQL keywords we never allow
+# SQL keywords that aren't allowed
 BLOCKED_KEYWORDS = [
     r"\bDROP\b",
     r"\bDELETE\b",

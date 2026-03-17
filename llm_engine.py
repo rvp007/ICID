@@ -8,11 +8,8 @@ from session_manager import session_manager
 genai.configure(api_key=os.environ["GEMINI_API_KEY"])
 _MODEL = genai.GenerativeModel("gemini-2.5-flash")
 
-# ------------------------------------------------------------------
 # System prompt template
-# ------------------------------------------------------------------
-
-SYSTEM_PROMPT = """You are a data analyst assistant. Your job is to convert natural language questions into SQL queries and produce chart configurations.
+SYSTEM_PROMPT = """You are a business data analyst assistant. Your job is to convert natural language questions into SQL queries and produce visual representation configurations.
 
 You will be given:
 1. A database schema (table names, columns, data types)
@@ -45,12 +42,17 @@ RULES:
 - Use table aliases for clarity. Limit results to 500 rows unless the user specifies otherwise.
 - For aggregations, always alias the result columns clearly (e.g., COUNT(*) AS total_orders).
 - Choose the most appropriate chart type:
-    * bar: comparisons across categories
-    * line: trends over time
+    * bar: comparisons across categories. The optimal choice when you have long category labels or more than 10 items.
+    * column (vertical): for a small number of discrete categories
+    * line:  for tracking changes over continuous time, immediately highlight trends, peaks, and troughs.
     * pie: proportions/percentages (use only when ≤8 slices)
-    * scatter: correlations between two numeric columns
-    * area: cumulative trends
+    * scatter:  to determine if one continuous variable affects another, or if there are clusters and outliers within a complex dataset.
+    * bubble: Use as an extension of the scatter plot that introduces a third continuous variable, represented by the varying area (size) of the data points.
+    * area: similar to line graphs, but the area below the line is filled. Use this when the cumulative trends magnitude or volume over time is just as important as the trend itself.
     * table: when raw data is more informative than a chart
+    * histograms : for visualizing the frequency distribution of continuous data by grouping it into "bins.", which instantly reveals if data is normally distributed, skewed, or bimodal.
+    * network graphs:  to map complex relationships between discrete entities (nodes)
+    * treemaps :  space-efficient method for displaying highly complex, hierarchical, part-to-whole relationships using nested rectangles.
 
 Database Schema:
 {schema}
@@ -95,10 +97,7 @@ def query_to_sql_and_chart(
     return _parse_llm_response(raw)
 
 
-# ------------------------------------------------------------------
 # Helpers
-# ------------------------------------------------------------------
-
 def _format_schema(schema: dict) -> str:
     lines = []
     for table, cols in schema.items():

@@ -33,26 +33,14 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 
-# ------------------------------------------------------------------
-# Health check
-# ------------------------------------------------------------------
-
-@app.get("/health")
+@app.get("/health") # Health check
 def health():
     return {"status": "ok"}
 
 
-# ------------------------------------------------------------------
 # Connect to an existing DB (SQLite file path or PostgreSQL DSN)
-# ------------------------------------------------------------------
-
 @app.post("/api/connect", response_model=SchemaResponse)
 def connect_db(req: ConnectDBRequest):
-    """
-    Connect to SQLite or PostgreSQL.
-    - SQLite: connection_string = "/path/to/file.db"
-    - PostgreSQL: connection_string = "postgresql://user:pass@host:5432/dbname"
-    """
     try:
         if req.db_type == "sqlite":
             sid = db_manager.connect_sqlite(req.connection_string, req.session_id)
@@ -69,14 +57,11 @@ def connect_db(req: ConnectDBRequest):
     return SchemaResponse(session_id=sid, schema=schema)
 
 
-# ------------------------------------------------------------------
-# Upload CSV
-# ------------------------------------------------------------------
-
+# Uploading CSV
 @app.post("/api/upload", response_model=UploadResponse)
 async def upload_csv(file: UploadFile = File(...)):
     """
-    Upload a CSV file. It is ingested into an in-memory SQLite database
+    CSV file is ingested into an in-memory SQLite database
     so the same SQL pipeline handles it transparently.
     """
     if not file.filename.endswith(".csv"):
@@ -101,10 +86,7 @@ async def upload_csv(file: UploadFile = File(...)):
     )
 
 
-# ------------------------------------------------------------------
 # Get schema for a session
-# ------------------------------------------------------------------
-
 @app.get("/api/schema/{session_id}", response_model=SchemaResponse)
 def get_schema(session_id: str):
     try:
@@ -114,10 +96,7 @@ def get_schema(session_id: str):
     return SchemaResponse(session_id=session_id, schema=schema)
 
 
-# ------------------------------------------------------------------
 # Natural language query (the core endpoint)
-# ------------------------------------------------------------------
-
 @app.post("/api/query", response_model=QueryResponse)
 def query(req: QueryRequest):
     """
@@ -203,9 +182,7 @@ def query(req: QueryRequest):
     )
 
 
-# ------------------------------------------------------------------
 # Session management
-# ------------------------------------------------------------------
 
 @app.get("/api/session/{session_id}", response_model=SessionInfo)
 def session_info(session_id: str):
@@ -235,9 +212,7 @@ def clear_history(session_id: str):
     return {"cleared": session_id}
 
 
-# ------------------------------------------------------------------
 # Dev entry point
-# ------------------------------------------------------------------
 
 if __name__ == "__main__":
     import uvicorn
