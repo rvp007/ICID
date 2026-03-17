@@ -69,8 +69,7 @@ async def upload_csv(file: UploadFile = File(...)):
     CSV file is ingested into an in-memory SQLite database
     so the same SQL pipeline handles it transparently.
     """
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only .csv files are supported.")
+    if not (file.filename or "").endswith(".csv"):        raise HTTPException(status_code=400, detail="Only .csv files are supported.")
 
     dest = UPLOAD_DIR / f"{uuid.uuid4()}_{file.filename}"
     with dest.open("wb") as f:

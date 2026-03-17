@@ -1,6 +1,0 @@
-product,category,stock,unit_price,supplier
-Widget A,Electronics,100,50.0,SupplierX
-Widget B,Electronics,50,60.0,SupplierY
-Widget C,Hardware,200,40.0,SupplierX
-Gadget D,Electronics,30,120.0,SupplierZ
-Tool E,Hardware,150,25.0,SupplierY
