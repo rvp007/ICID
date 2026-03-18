@@ -1,4 +1,4 @@
-# NL2Dashboard
+# Interactive Conversational Intelligence Dashboard
 
 Ask questions about your data in plain English. The app translates them into SQL using Google Gemini, runs the query, and renders a chart automatically.
 
