@@ -18,7 +18,7 @@ TIMEOUT     = 30    # seconds before giving up
 
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(
-    page_title="NL2Dashboard",
+    page_title="ICID",
     layout="wide"
 )
 
@@ -102,7 +102,7 @@ def startup_gate() -> bool:
         return True
 
     # ── Render the key-entry screen ──────────────────
-    st.markdown("## NL2Dashboard")
+    st.markdown("## ICID")
     st.caption("Enter your Gemini API key to start the backend server.")
     st.divider()
 
@@ -329,7 +329,7 @@ def render_chart(df: pd.DataFrame, config: dict):
         st.dataframe(df, use_container_width=True)
 
 # -------------------- MAIN UI --------------------
-st.title("Natural Language Dashboard")
+st.title("Interactive Conversational Intelligence Dashboard")
 
 st.divider()
 
